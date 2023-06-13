@@ -3,6 +3,9 @@ from structures import Frame
 
 
 class AnimatedTile(VisibleTile):
+    """The AnimatedTile class is a subclass of VisibleTile that updates its image based on a list of frames
+    and their durations."""
+
     def __init__(
         self, pos: tuple, frames: list[Frame], props: dict, layerProps: dict
     ) -> None:

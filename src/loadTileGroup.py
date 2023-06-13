@@ -1,10 +1,15 @@
 import pytiles
-import pytmx
 
 
-def loadTileGroup(
-    tiledMap: pytmx.TiledMap, tileSize: tuple
-) -> pytiles.structures.TileGroup:
+def loadTileGroup(tiledMap, tileSize: tuple) -> pytiles.structures.TileGroup:
+    """
+    This function loads a tile group from a Tiled map and returns it.
+
+    :param tiledMap: A TiledMap object, which is a representation of a Tiled map file in Python
+    :param tileSize: The tileSize parameter is a tuple that contains the width and height of each tile
+    in the tiled map
+    :return: an instance of the `TileGroup` class from the `pytiles.structures` module.
+    """
     tiledMap = tiledMap
     tileGroup = pytiles.structures.TileGroup()
     for layer_index, layer in enumerate(tiledMap.layers):

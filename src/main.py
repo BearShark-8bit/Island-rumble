@@ -1,57 +1,37 @@
-import json
 import math
 import sys
 import pygame
 from loadTileGroup import loadTileGroup
-import time
 from pytmx.util_pygame import load_pygame
 
 
-with open("./data/config.json") as config_file:
-    config = json.load(config_file)
-
-
 class Game:
-    def __init__(self, config: dict) -> None:
-        self.start_time = time.time()
-        self.config = config
+    fps = 60
+    screenWidth, screenHeight = 864, 512
+    tileSize = (32, 32)
+    margin = 40
+    ms_per_update = 1000 / fps
 
-        self.WIN = pygame.display.set_mode(
-            (self.config["SCREEN_WIDTH"], self.config["SCREEN_HEIGHT"])
+    def __init__(self) -> None:
+        self.screen = pygame.display.set_mode(
+            (
+                Game.screenWidth + Game.margin,
+                Game.screenHeight + Game.margin,
+            ),
+            pygame.RESIZABLE,
         )
-        self.tiles = loadTileGroup(
-            load_pygame("./data/tmx/tmx.tmx"), (self.config["TILE_SIZE"])
-        )
-        self.game = True
-        self.clock = pygame.time.Clock()
-
-        self.MS_PER_UPDATE = 1000 / self.config["FPS"]
-
         pygame.display.set_caption("Island rumble")
         pygame.display.set_icon(pygame.image.load("./assets/icon.png"))
 
-    def _update(self):
-        pass
+        self.renderSurface = pygame.Surface((Game.screenWidth, Game.screenHeight))
+        self.clock = pygame.time.Clock()
+
+        self.tiles = loadTileGroup(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))
+
+        self.game = True
 
     def getCurrentTime(self):
         return pygame.time.get_ticks()
-
-    def _render(self, extrapolation):
-        self.WIN.fill((135, 206, 235))
-
-        self.tiles.update(self.getCurrentTime())
-        self.tiles.draw(self.WIN)
-
-        self._text("fps: " + str(int(self.clock.get_fps())), (0, 2), 16)
-
-        pygame.display.update()
-
-    def _handleInput(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.game = False
-                pygame.quit()
-                sys.exit()
 
     def _text(
         self,
@@ -63,12 +43,66 @@ class Game:
     ):
         font = pygame.font.SysFont(None, size)
         img = font.render(text, antialias, color)
-        self.WIN.blit(img, pos)
+        self.renderSurface.blit(img, pos)
+
+    def _handleInput(self):
+        pass
+
+    def _update(self):
+        pass
+
+    def _render(self, extrapolation: float):
+        self.renderSurface.fill((135, 206, 235))
+        self.screen.fill((0, 0, 0))
+
+        self.tiles.update(self.getCurrentTime())
+        self.tiles.draw(self.renderSurface)
+
+        self._text("fps: " + str(int(self.clock.get_fps())), (0, 2), 16, antialias=True)
+
+        self.screen.blit(
+            self.renderSurface,
+            self.renderSurface.get_rect(
+                center=(
+                    self.screen.get_size()[0] / 2,
+                    self.screen.get_size()[1] / 2,
+                )
+            ),
+        )
+
+        pygame.display.update()
 
     def loop(self):
         previous = self.getCurrentTime()
         lag = 0.0
         while self.game:
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    self.game = False
+                    pygame.quit()
+                    sys.exit()
+
+                if e.type == pygame.KEYDOWN:
+                    if e.key == pygame.K_F11:
+                        if self.screen.get_flags() != pygame.FULLSCREEN:
+                            self.screen = pygame.display.set_mode(
+                                (0, 0), pygame.FULLSCREEN
+                            )
+                    if e.key == pygame.K_ESCAPE:
+                        self.screen = pygame.display.set_mode(
+                            (
+                                Game.screenWidth + Game.margin,
+                                Game.screenHeight + Game.margin,
+                            ),
+                            pygame.RESIZABLE,
+                        )
+
+                if e.type == pygame.VIDEORESIZE:
+                    if self.screen.get_flags() != pygame.FULLSCREEN:
+                        self.screen = pygame.display.set_mode(
+                            (e.w, e.h), pygame.RESIZABLE
+                        )
+
             current = self.getCurrentTime()
             elapsed = current - previous
             previous = current
@@ -76,16 +110,16 @@ class Game:
 
             self._handleInput()
 
-            while lag >= self.MS_PER_UPDATE:
+            while lag >= self.ms_per_update:
                 self._update()
-                lag -= self.MS_PER_UPDATE
+                lag -= self.ms_per_update
 
             self.tiles.update(current)
 
-            self._render(lag / self.MS_PER_UPDATE)
+            self._render(lag / self.ms_per_update)
 
-            self.clock.tick(self.config["FPS"])
+            self.clock.tick(Game.fps)
 
 
 pygame.init()
-Game(config).loop()
+Game().loop()

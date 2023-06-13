@@ -1,3 +1,6 @@
+"""pytiles is a Python module that provides classes and functions for working with tiled maps provided by Tiled"""
+
+
 import os, sys, inspect
 
 cmd_folder = os.path.realpath(
