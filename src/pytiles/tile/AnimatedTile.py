@@ -1,5 +1,5 @@
 from VisibleTile import VisibleTile
-from pytiles.structures import Frame
+from structures import Frame
 
 
 class AnimatedTile(VisibleTile):

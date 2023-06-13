@@ -1,10 +1,9 @@
 import pygame
-from typing import Iterable, Literal
-from pygame.sprite import AbstractGroup
+from typing import Literal
 
 
 class TileGroup(pygame.sprite.Group):
-    def __init__(self, *sprites: any | AbstractGroup | Iterable) -> None:
+    def __init__(self, *sprites) -> None:
         super().__init__(*sprites)
 
     def search_by_props(self, key: Literal["id", "type", "frames"], value="if"):
