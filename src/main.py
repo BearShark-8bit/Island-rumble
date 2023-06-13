@@ -2,7 +2,7 @@ import json
 import math
 import sys
 import pygame
-import tmxhandler
+from loadTileGroup import loadTileGroup
 import time
 from pytmx.util_pygame import load_pygame
 
@@ -19,7 +19,7 @@ class Game:
         self.WIN = pygame.display.set_mode(
             (self.config["SCREEN_WIDTH"], self.config["SCREEN_HEIGHT"])
         )
-        self.tiles = tmxhandler.loadTileGroup(
+        self.tiles = loadTileGroup(
             load_pygame("./data/tmx/tmx.tmx"), (self.config["TILE_SIZE"])
         )
         self.game = True
