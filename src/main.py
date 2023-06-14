@@ -35,6 +35,7 @@ class Game:
 
     def _text(
         self,
+        surf: pygame.Surface,
         text: str,
         pos: tuple,
         size: int = 24,
@@ -43,7 +44,7 @@ class Game:
     ):
         font = pygame.font.SysFont(None, size)
         img = font.render(text, antialias, color)
-        self.renderSurface.blit(img, pos)
+        surf.blit(img, pos)
 
     def _handleInput(self):
         pass
@@ -58,7 +59,23 @@ class Game:
         self.tiles.update(self.getCurrentTime())
         self.tiles.draw(self.renderSurface)
 
-        self._text("fps: " + str(int(self.clock.get_fps())), (0, 2), 16, antialias=True)
+        self._text(
+            self.renderSurface,
+            "FPS: " + str(int(self.clock.get_fps())),
+            pygame.Surface((48, 0)).get_rect(topright=(Game.screenWidth, 3)).topleft,
+            18,
+            antialias=False,
+        )
+
+        if self.screen.get_flags() == -2130706416:
+            self._text(
+                self.screen,
+                "Press key F11 to toggle fullscreen",
+                (0, 2),
+                16,
+                (255, 255, 255),
+                False,
+            )
 
         self.screen.blit(
             self.renderSurface,
@@ -84,9 +101,17 @@ class Game:
 
                 if e.type == pygame.KEYDOWN:
                     if e.key == pygame.K_F11:
-                        if self.screen.get_flags() != pygame.FULLSCREEN:
+                        if self.screen.get_flags() != -2130706416:
                             self.screen = pygame.display.set_mode(
                                 (0, 0), pygame.FULLSCREEN
+                            )
+                        else:
+                            self.screen = pygame.display.set_mode(
+                                (
+                                    Game.screenWidth + Game.margin,
+                                    Game.screenHeight + Game.margin,
+                                ),
+                                pygame.RESIZABLE,
                             )
                     if e.key == pygame.K_ESCAPE:
                         self.screen = pygame.display.set_mode(
@@ -95,12 +120,6 @@ class Game:
                                 Game.screenHeight + Game.margin,
                             ),
                             pygame.RESIZABLE,
-                        )
-
-                if e.type == pygame.VIDEORESIZE:
-                    if self.screen.get_flags() != pygame.FULLSCREEN:
-                        self.screen = pygame.display.set_mode(
-                            (e.w, e.h), pygame.RESIZABLE
                         )
 
             current = self.getCurrentTime()
