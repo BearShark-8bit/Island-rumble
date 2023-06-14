@@ -11,6 +11,3 @@ class Tile(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, width, height)
         self.props = props
         self.layerProps = layerProps
-
-    def pos(self) -> tuple:
-        return self.rect.topleft

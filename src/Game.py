@@ -1,6 +1,6 @@
 import sys
 import pygame
-from loadTileGroup import loadTileGroup
+from pytiled import loadTileGroup
 from pytmx.util_pygame import load_pygame
 
 
@@ -12,6 +12,7 @@ class Game:
     ms_per_update = 1000 / fps
 
     def __init__(self) -> None:
+        pygame.init()
         self.screen = pygame.display.set_mode(
             (
                 Game.screenWidth + Game.margin,
@@ -28,6 +29,8 @@ class Game:
         self.tiles = loadTileGroup(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))
 
         self.game = True
+
+        self.loop()
 
     def getCurrentTime(self):
         return pygame.time.get_ticks()
@@ -139,5 +142,4 @@ class Game:
             self.clock.tick(Game.fps)
 
 
-pygame.init()
-Game().loop()
+Game()

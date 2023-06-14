@@ -1,3 +1,5 @@
 {
-    "docwriter.style": "Auto-detect"
+    "docwriter.style": "Google",
+    "docwriter.progress.trackMethods": true,
+    "docwriter.progress.trackFunctions": false
 }
