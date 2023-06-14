@@ -1,6 +1,6 @@
 import sys
 import pygame
-from pytiled import loadTileGroup
+from loadTileGroup import loadTileGroup
 from pytmx.util_pygame import load_pygame
 
 
