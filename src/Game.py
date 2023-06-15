@@ -31,7 +31,6 @@ class Game:
 
         self.spawnPoints = self.objects.search_by_props("type", "spawn_point")
 
-        print(self.spawnPoints)
         self.game = True
 
         self.loop()
