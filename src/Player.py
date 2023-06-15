@@ -47,7 +47,7 @@ class Player(utils.AnimatedEntity):
             self.speedX = 0
             self.iswalking = False
         if keys[pygame.K_w]:
-            self.jump(10)
+            self.jump(15)
 
     # TODO: add gravitation
     def update(self):
@@ -73,12 +73,12 @@ class Player(utils.AnimatedEntity):
             for tile in self.ground:
                 if self.rect.colliderect(tile.rect):
                     self.stepBack(True, False)
-            self.rect = self.rect.move(0, self.speedY)
-            for tile in self.ground:
-                if self.rect.colliderect(tile.rect):
-                    self.stepBack(False, True)
-                    self.speedY = 0
-                    self.isTouchingGround = True
+        self.rect = self.rect.move(0, self.speedY)
+        for tile in self.ground:
+            if self.rect.colliderect(tile.rect):
+                self.stepBack(False, True)
+                self.speedY = 0
+                self.isTouchingGround = True
 
     def jump(self, speed):
         if self.isTouchingGround:
