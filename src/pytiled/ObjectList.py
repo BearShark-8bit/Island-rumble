@@ -2,7 +2,7 @@ from typing import Literal
 from Object import Object
 
 
-class ObjectList(list):
+class ObjectList(list[Object]):
     """The ObjectList class allows for searching objects based on their properties."""
 
     def __init__(self, *args: Object):

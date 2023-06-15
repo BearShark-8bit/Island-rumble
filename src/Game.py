@@ -1,9 +1,9 @@
 import sys
 import pygame
-from pytiled import load
+import pytiled
 from pytmx.util_pygame import load_pygame
 from Player import Player
-from utils import loadSpritesheet
+import utils
 
 
 class Game:
@@ -28,27 +28,18 @@ class Game:
         self.renderSurface = pygame.Surface((Game.screenWidth, Game.screenHeight))
         self.clock = pygame.time.Clock()
 
-        self.tiles = load(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))[0]
-        self.objects = load(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))[1]
+        self.tiles = pytiled.load(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))[0]
+        self.ground: list[pytiled.VisibleTile] = self.tiles.search_by_props(
+            "type", "ground"
+        ).sprites()
+        self.objects = pytiled.load(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))[
+            1
+        ]
 
         self.spawnPoints = self.objects.search_by_props("type", "spawn_point")
 
-        self.playerImage = pygame.image.load("./assets/default/player/waiting.png")
-
-        self.playerWalkingAnim = loadSpritesheet(
-            "./assets/default/player/walking.png",
-            (32, 36),
-            6,
-            [300, 150, 100, 300, 150, 100],
-        )
-
-        self.player1 = pygame.sprite.GroupSingle(
-            Player(
-                self.spawnPoints[0].rect.topleft,
-                self.playerImage,
-                self.playerWalkingAnim,
-            )
-        )
+        self.player1 = pygame.sprite.GroupSingle()
+        Player(self.spawnPoints[0].rect.center, self.ground, self.player1)
 
         self.game = True
 

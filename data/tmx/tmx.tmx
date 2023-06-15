@@ -42,10 +42,10 @@
 </data>
  </layer>
  <objectgroup id="3" name="spawn_points">
-  <object id="1" name="spawn_point" type="spawn_point" x="144" y="288">
+  <object id="1" name="spawn_point" type="spawn_point" x="144" y="270">
    <point/>
   </object>
-  <object id="3" name="spawn_point2" type="spawn_point" x="720" y="288">
+  <object id="3" name="spawn_point2" type="spawn_point" x="720" y="270">
    <point/>
   </object>
  </objectgroup>

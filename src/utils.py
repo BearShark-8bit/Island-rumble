@@ -4,14 +4,14 @@ import pygame
 class Frame:
     """The `Frame` class represents a single frame of an animation with an image, rectangle, and duration."""
 
-    def __init__(self, image: pygame.Surface, duration: float) -> None:
+    def __init__(self, image: pygame.Surface, duration: int = 0) -> None:
         self.image = image
         self.rect = image.get_rect()
         self.duration = duration
 
 
 class Animation:
-    def __init__(self, frames: list[Frame]) -> None:
+    def __init__(self, *frames: Frame) -> None:
         self.lastUpdateTime: int = 0
         self.frameOn: int = 0
         self.frames: list[Frame] = frames
@@ -26,6 +26,29 @@ class Animation:
             self.current = self.frames[self.frameOn].image
 
 
+class Entity(pygame.sprite.Sprite):
+    def __init__(self, pos: tuple[int, int], image: pygame.Surface, *groups) -> None:
+        super().__init__(*groups)
+
+        self.image = image
+        self.rect = self.image.get_rect(center=pos)
+
+    def update(self, *args):
+        pass
+
+
+class AnimatedEntity(Entity):
+    def __init__(
+        self, pos: tuple[int, int], animations: list[Animation], *groups
+    ) -> None:
+        self.animations = animations
+        super().__init__(pos, animations[0].current, *groups)
+
+    def updateAnimation(self, ct: int):
+        for animation in self.animations:
+            animation.updateAnimation(ct)
+
+
 def loadSpritesheet(
     filename: str, frameSize: tuple[int, int], rows: int, durationsMs: list[int]
 ) -> list[Frame]:
@@ -36,7 +59,7 @@ def loadSpritesheet(
     @param rows Number
     @param durationsMs
     """
-    frameList = []
+    frameList: list[Frame] = []
     spritesheet = pygame.image.load(filename)
     for i in range(rows):
         frameList.append(

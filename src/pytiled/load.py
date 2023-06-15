@@ -12,7 +12,8 @@ def load(tiledMap: pytmx.TiledMap, tileSize: tuple) -> tuple[TileGroup, ObjectLi
     tiledMap = tiledMap
     tileGroup = TileGroup()
     objectList = ObjectList()
-    tileLayers, objectLayers = [], []
+    tileLayers: list[pytmx.TiledTileLayer] = []
+    objectLayers: list[pytmx.TiledObjectGroup] = []
 
     for layer in tiledMap.layers:
         if isinstance(layer, pytmx.TiledTileLayer):
@@ -26,21 +27,27 @@ def load(tiledMap: pytmx.TiledMap, tileSize: tuple) -> tuple[TileGroup, ObjectLi
             props = tiledMap.get_tile_properties(x, y, layer_index)
 
             if props["frames"]:
-                frames = []
+                frames: list[Frame] = []
                 for frame in props["frames"]:
                     frames.append(
                         Frame(tiledMap.get_tile_image_by_gid(frame.gid), frame.duration)
                     )
-                tileGroup.add(
-                    AnimatedTile(
-                        (x * tileSize[0], y * tileSize[1]), frames, props, layerProps
-                    )
+
+                AnimatedTile(
+                    (x * tileSize[0], y * tileSize[1]),
+                    frames,
+                    props,
+                    layerProps,
+                    tileGroup,
                 )
+
             else:
-                tileGroup.add(
-                    VisibleTile(
-                        (x * tileSize[0], y * tileSize[1]), image, props, layerProps
-                    )
+                VisibleTile(
+                    (x * tileSize[0], y * tileSize[1]),
+                    image,
+                    props,
+                    layerProps,
+                    tileGroup,
                 )
 
     for layer_index, layer in enumerate(objectLayers):
@@ -59,6 +66,7 @@ def load(tiledMap: pytmx.TiledMap, tileSize: tuple) -> tuple[TileGroup, ObjectLi
             #             (x * tileSize[0], y * tileSize[1]), frames, props, layerProps
             #         )
             #     )
+
             objectList.append(
                 Object(props["x"], props["y"], props["width"], props["height"], props)
             )
