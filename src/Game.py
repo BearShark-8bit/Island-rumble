@@ -1,6 +1,6 @@
 import sys
 import pygame
-from pytiled import loadTileGroup
+from pytiled import load
 from pytmx.util_pygame import load_pygame
 
 
@@ -26,8 +26,12 @@ class Game:
         self.renderSurface = pygame.Surface((Game.screenWidth, Game.screenHeight))
         self.clock = pygame.time.Clock()
 
-        self.tiles = loadTileGroup(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))
+        self.tiles = load(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))[0]
+        self.objects = load(load_pygame("./data/tmx/tmx.tmx"), (Game.tileSize))[1]
 
+        self.spawnPoints = self.objects.search_by_props("type", "spawn_point")
+
+        print(self.spawnPoints)
         self.game = True
 
         self.loop()
