@@ -1,5 +1,6 @@
 import pygame
 from typing import Literal
+from AnimatedTile import AnimatedTile
 
 
 class TileGroup(pygame.sprite.Group):
@@ -22,7 +23,11 @@ class TileGroup(pygame.sprite.Group):
                 filteredGroup.add(sprite)
         return filteredGroup
 
-    def search_by_layerProps(self, key: Literal["id", "name", "visible"], value="if"):
+    def search_by_layerProps(
+        self,
+        key: Literal["name", "opacity", "visible", "data", "properties"],
+        value="if",
+    ):
         """
         This function searches for sprites in a TileGroup based on their layer properties matching a given
         key-value pair.
@@ -34,3 +39,8 @@ class TileGroup(pygame.sprite.Group):
             elif sprite.layerProps[key] and value == "if":
                 filteredGroup.add(sprite)
         return filteredGroup
+
+    def updateAnimation(self, ct):
+        for tile in self.sprites():
+            if isinstance(tile, AnimatedTile):
+                tile.updateAnimation(ct)

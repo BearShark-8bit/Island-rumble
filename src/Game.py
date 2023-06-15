@@ -2,6 +2,8 @@ import sys
 import pygame
 from pytiled import load
 from pytmx.util_pygame import load_pygame
+from Player import Player
+from utils import loadSpritesheet
 
 
 class Game:
@@ -31,6 +33,23 @@ class Game:
 
         self.spawnPoints = self.objects.search_by_props("type", "spawn_point")
 
+        self.playerImage = pygame.image.load("./assets/default/player/waiting.png")
+
+        self.playerWalkingAnim = loadSpritesheet(
+            "./assets/default/player/walking.png",
+            (32, 36),
+            6,
+            [300, 150, 100, 300, 150, 100],
+        )
+
+        self.player1 = pygame.sprite.GroupSingle(
+            Player(
+                self.spawnPoints[0].rect.topleft,
+                self.playerImage,
+                self.playerWalkingAnim,
+            )
+        )
+
         self.game = True
 
         self.loop()
@@ -52,17 +71,20 @@ class Game:
         surf.blit(img, pos)
 
     def _handleInput(self):
-        pass
+        self.player1.sprite.handle_input()
 
     def _update(self):
-        pass
+        self.player1.update()
 
     def _render(self, extrapolation: float):
         self.renderSurface.fill((135, 206, 235))
         self.screen.fill((0, 0, 0))
 
-        self.tiles.update(self.getCurrentTime())
+        self.tiles.updateAnimation(self.getCurrentTime())
         self.tiles.draw(self.renderSurface)
+
+        self.player1.sprite.updateAnimation(self.getCurrentTime())
+        self.player1.draw(self.renderSurface)
 
         self._text(
             self.renderSurface,
@@ -137,8 +159,6 @@ class Game:
             while lag >= self.ms_per_update:
                 self._update()
                 lag -= self.ms_per_update
-
-            self.tiles.update(current)
 
             self._render(lag / self.ms_per_update)
 

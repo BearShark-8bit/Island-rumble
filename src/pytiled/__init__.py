@@ -1,3 +1,3 @@
 """pytiles is a Python module that provides classes and functions for working with tiled maps provided by Tiled"""
 
-from utils import load
+from .load import load
