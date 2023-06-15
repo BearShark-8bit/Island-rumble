@@ -51,7 +51,6 @@ class Player(utils.AnimatedEntity):
 
     # TODO: add gravitation
     def update(self):
-        print(self.speedY)
         if not (self.speedY >= 32):
             self.speedY += 1
 
