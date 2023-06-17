@@ -1,6 +1,7 @@
 import pygame
 from typing import Literal
 from AnimatedTile import AnimatedTile
+from Tiled_utils import Tile
 
 
 class TileGroup(pygame.sprite.Group):
@@ -16,6 +17,7 @@ class TileGroup(pygame.sprite.Group):
         frames.
         """
         filteredGroup = TileGroup()
+        sprite: Tile
         for sprite in self.sprites():
             if sprite.props[key] == value:
                 filteredGroup.add(sprite)
@@ -33,6 +35,7 @@ class TileGroup(pygame.sprite.Group):
         key-value pair.
         """
         filteredGroup = TileGroup()
+        sprite: Tile
         for sprite in self.sprites():
             if sprite.layerProps[key] == value:
                 filteredGroup.add(sprite)

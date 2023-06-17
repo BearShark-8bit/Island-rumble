@@ -1,4 +1,5 @@
 import pygame
+from copy import copy
 
 
 class Frame:
@@ -25,6 +26,9 @@ class Animation:
             self.lastUpdateTime = ct
             self.current = self.frames[self.frameOn].image
 
+    def copy(self):
+        return copy(self)
+
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, pos: tuple[int, int], image: pygame.Surface, *groups) -> None:
@@ -44,6 +48,17 @@ class AnimatedEntity(Entity):
     def updateAnimation(self, ct: int):
         for animation in self.animations:
             animation.updateAnimation(ct)
+
+
+class AnimatedEntityGroup(pygame.sprite.Group):
+    def __init__(self, *sprites: list[AnimatedEntity]) -> None:
+        super().__init__(*sprites)
+
+    def updateAnimation(self, ct):
+        entity: AnimatedEntity
+        for entity in self.sprites():
+            if isinstance(entity, AnimatedEntity):
+                entity.updateAnimation(ct)
 
 
 def loadSpritesheet(

@@ -1,10 +1,9 @@
 import sys
 import pygame
 import Tiled_utils
-from pytmx.util_pygame import load_pygame
+import gameDevUtils as GDU
+
 from Player import Player
-import Pygame_utils
-from Bullet import Bullet
 
 
 class Game:
@@ -15,7 +14,7 @@ class Game:
     margin = 40
     msPerUpdate = 1000 / fps
     clock = pygame.time.Clock()
-    players: pygame.sprite.Group = pygame.sprite.Group()
+    players: GDU.AnimatedEntityGroup = GDU.AnimatedEntityGroup()
     screen = pygame.display.set_mode(
         (
             screenWidth + margin,
@@ -25,13 +24,13 @@ class Game:
     )
     pygame.display.set_caption("Island rumble")
     pygame.display.set_icon(pygame.image.load("./assets/icon.png"))
-    tiles = Tiled_utils.load(load_pygame("./data/tmx/tmx.tmx"), (tileSize))[0]
+    tiles = Tiled_utils.load("./data/tmx/tmx.tmx", (tileSize))[0]
     renderSurface = pygame.Surface((screenWidth, screenHeight))
     ground: list[Tiled_utils.VisibleTile] = tiles.search_by_props("type", "ground")
     ocean: list[Tiled_utils.VisibleTile] = tiles.search_by_props("type", "ocean")
-    objects = Tiled_utils.load(load_pygame("./data/tmx/tmx.tmx"), (tileSize))[1]
+    objects = Tiled_utils.load("./data/tmx/tmx.tmx", (tileSize))[1]
     spawnPoints = objects.search_by_props("type", "spawn_point")
-    bullets = pygame.sprite.Group()
+    bullets = GDU.AnimatedEntityGroup()
 
     def __init__(self) -> None:
         self.pageOn = "game"
@@ -41,6 +40,13 @@ class Game:
             Game.ground,
             Game.ocean,
             "left",
+            Game.players,
+        )
+        self.player2 = Player(
+            Game.spawnPoints[1].rect.center,
+            Game.ground,
+            Game.ocean,
+            "right",
             Game.players,
         )
 
@@ -70,7 +76,7 @@ class Game:
         Updates the game. Should be called every frame
         """
         Game.bullets.update()
-        Game.players.update()
+        Game.players.update(Game.bullets)
 
     def render(self):
         """
@@ -81,7 +87,7 @@ class Game:
             Game.renderSurface.fill((0, 0, 0))
             Game.screen.fill((0, 0, 0))
 
-            Pygame_utils.text(
+            GDU.text(
                 Game.renderSurface,
                 "GAME OVER",
                 68,
@@ -89,7 +95,7 @@ class Game:
                 True,
                 center=(Game.screenWidth / 2, Game.screenHeight / 2),
             )
-            Pygame_utils.text(
+            GDU.text(
                 self.renderSurface,
                 "Press R key to restart",
                 34,
@@ -108,17 +114,10 @@ class Game:
             Game.tiles.updateAnimation(self.getCurrentTime())
             Game.tiles.draw(Game.renderSurface)
 
-            bullet: Bullet
-            for bullet in Game.bullets.sprites():
-                bullet.updateAnimation(self.getCurrentTime())
+            Game.bullets.updateAnimation(self.getCurrentTime())
             Game.bullets.draw(Game.renderSurface)
 
-            player: Player
-            for player in Game.players:
-                player.updateAnimation(self.getCurrentTime())
-            Game.players.draw(Game.renderSurface)
-
-            Pygame_utils.text(
+            GDU.text(
                 Game.renderSurface,
                 "FPS: " + str(int(Game.clock.get_fps())),
                 18,
@@ -129,14 +128,20 @@ class Game:
 
             # Toggle fullscreen mode. If the user pressing key F11 to toggle fullscreen the fullscreen is pressed.
             if Game.screen.get_flags() == -2130706416:
-                Pygame_utils.text(
+                GDU.text(
                     Game.screen,
                     "Press key F11 to toggle fullscreen",
-                    (0, 2),
                     16,
                     (255, 255, 255),
                     False,
+                    topleft=(2, 2),
                 )
+
+            if self.player1.isdead:
+                Game.renderSurface.fill((0, 0, 0))
+
+            Game.players.updateAnimation(self.getCurrentTime())
+            Game.players.draw(Game.renderSurface)
 
         Game.screen.blit(
             Game.renderSurface,

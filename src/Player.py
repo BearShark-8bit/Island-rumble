@@ -1,22 +1,24 @@
+from typing import Literal
 import pygame
 import Tiled_utils
-import Pygame_utils
+import gameDevUtils
 from Bullet import Bullet
+from copy import copy
 
 
-class Player(Pygame_utils.AnimatedEntity):
+class Player(gameDevUtils.AnimatedEntity):
     yRemoveLimit = 512
 
-    walkingAnimation = Pygame_utils.Animation(
-        *Pygame_utils.loadSpritesheet(
+    walkingAnimation = gameDevUtils.Animation(
+        *gameDevUtils.loadSpritesheet(
             "./assets/default/player/walking.png",
             (32, 36),
             6,
             [150, 75, 50, 150, 75, 50],
         )
     )
-    waitingAnimation = Pygame_utils.Animation(
-        Pygame_utils.Frame(pygame.image.load("./assets/default/player/waiting.png"))
+    waitingAnimation = gameDevUtils.Animation(
+        gameDevUtils.Frame(pygame.image.load("./assets/default/player/waiting.png"))
     )
     speed = 2
     cooldown = 600
@@ -26,55 +28,58 @@ class Player(Pygame_utils.AnimatedEntity):
         pos: tuple[int, int],
         ground: Tiled_utils.TileGroup,
         ocean: Tiled_utils.TileGroup,
-        side,
+        side: Literal["left", "right"],
         *groups: pygame.sprite.Group | pygame.sprite.GroupSingle
     ) -> None:
         super().__init__(
-            pos, [Player.waitingAnimation, Player.walkingAnimation], *groups
+            pos,
+            [Player.waitingAnimation.copy(), Player.walkingAnimation.copy()],
+            *groups
         )
         self.speedX, self.speedY = 0, 0
         if side == "left":
             self.previous_speedX = 1
+        else:
+            self.previous_speedX = -1
         self.lastTimeShooted = 0
 
+        self.side = side
+
         self.isdead = False
-        self.isdying = False
         self.istouchingGround = True
         self.iswalking = False
 
-        self.ground = ground
-        self.ocean = ocean
+        self.ground = ground.copy()
+        self.ocean = ocean.copy()
+        self.myBullets = pygame.sprite.Group()
 
     def handle_input(self, bulletGroup: pygame.sprite.Group, ct):
         keys = pygame.key.get_pressed()
         if not (self.isdead):
-            if keys[pygame.K_a]:
-                self.previous_speedX = self.speedX
-                self.speedX = -1
-                self.iswalking = True
+            if self.side == "left":
+                if keys[pygame.K_a]:
+                    self.previous_speedX = self.speedX
+                    self.speedX = -1
+                    self.iswalking = True
 
-            elif keys[pygame.K_d]:
-                self.previous_speedX = self.speedX
-                self.speedX = 1
-                self.iswalking = True
+                elif keys[pygame.K_d]:
+                    self.previous_speedX = self.speedX
+                    self.speedX = 1
+                    self.iswalking = True
 
-            else:
-                self.speedX = 0
-                self.iswalking = False
+                else:
+                    self.speedX = 0
+                    self.iswalking = False
 
-            if keys[pygame.K_w]:
-                self.jump(15)
+                if keys[pygame.K_w]:
+                    self.jump(15)
 
-            if keys[pygame.K_x]:
-                self.shoot(self.previous_speedX, ct, bulletGroup)
+                if keys[pygame.K_x]:
+                    self.shoot(self.previous_speedX, ct, bulletGroup, self.myBullets)
 
-    def update(self):
+    def update(self, bullets: pygame.sprite.Group):
         if self.rect.topleft[1] >= Player.yRemoveLimit:
             self.kill()
-
-        if self.isdying:
-            self.death()
-            self.isdying = False
 
         if not (self.speedY >= 32):
             self.speedY += 1
@@ -120,9 +125,15 @@ class Player(Pygame_utils.AnimatedEntity):
         else:
             self.istouchingGround = False
 
-        if not (self.isdead):
-            if pygame.sprite.spritecollideany(self, self.ocean, None):
-                self.isdying = True
+        if pygame.sprite.spritecollideany(self, self.ocean, None):
+            self.die()
+
+        enemyBullets = bullets.copy()
+        enemyBullets.remove(self.myBullets.sprites())
+
+        if enemyBullets.sprites():
+            if pygame.sprite.spritecollideany(self, enemyBullets.sprites(), None):
+                self.die()
 
     def jump(self, speed):
         if self.istouchingGround:
@@ -130,14 +141,30 @@ class Player(Pygame_utils.AnimatedEntity):
             self.istouchingGround = False
 
     def shoot(self, speedX: int, ct, *groups):
-        if ct - self.lastTimeShooted >= Player.cooldown:
+        if (
+            ct - self.lastTimeShooted >= Player.cooldown
+            and len(self.myBullets.sprites()) < 3
+        ):
             self.lastTimeShooted = ct
-            Bullet((self.rect.midright[0], self.rect.midright[1]), speedX, *groups)
+            if self.previous_speedX == 1:
+                Bullet(
+                    (self.rect.midright[0] + 8, self.rect.midright[1] + 4),
+                    speedX,
+                    *groups
+                )
+            elif self.previous_speedX == -1:
+                Bullet(
+                    (self.rect.midleft[0] - 8, self.rect.midleft[1] + 4),
+                    speedX,
+                    *groups
+                )
 
-    def death(self):
+    def die(self):
         self.istouchingGround = True
         self.jump(15)
         self.isdead = True
+        self.ocean.empty()
+        self.ground.empty()
 
     def stepBack(self, x: bool, y: bool):
         if x and y:

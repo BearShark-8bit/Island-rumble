@@ -2,14 +2,15 @@ from Tile import Tile
 from VisibleTile import VisibleTile
 from AnimatedTile import AnimatedTile
 from TileGroup import TileGroup
-from Pygame_utils import Frame
+from gameDevUtils import Frame
 from ObjectList import ObjectList
 from Object import Object
 import pytmx
+from pytmx.util_pygame import load_pygame
 
 
-def load(tiledMap: pytmx.TiledMap, tileSize: tuple) -> tuple[TileGroup, ObjectList]:
-    tiledMap = tiledMap
+def load(filename: str, tileSize: tuple) -> tuple[TileGroup, ObjectList]:
+    tiledMap = load_pygame(filename)
     tileGroup = TileGroup()
     objectList = ObjectList()
     tileLayers: list[pytmx.TiledTileLayer] = []
