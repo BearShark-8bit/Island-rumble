@@ -2,7 +2,7 @@ from Tile import Tile
 from VisibleTile import VisibleTile
 from AnimatedTile import AnimatedTile
 from TileGroup import TileGroup
-from utils import Frame
+from Pygame_utils import Frame
 from ObjectList import ObjectList
 from Object import Object
 import pytmx

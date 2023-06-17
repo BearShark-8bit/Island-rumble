@@ -33,9 +33,6 @@ class Entity(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(center=pos)
 
-    def update(self, *args):
-        pass
-
 
 class AnimatedEntity(Entity):
     def __init__(
@@ -70,3 +67,17 @@ def loadSpritesheet(
         )
 
     return frameList
+
+
+def text(
+    surf: pygame.Surface,
+    text: str,
+    size: int,
+    color: tuple,
+    antialias: bool,
+    **rectkvargs
+):
+    font = pygame.font.SysFont(None, size)
+    img = font.render(text, antialias, color)
+    rect = img.get_rect(**rectkvargs)
+    surf.blit(img, rect)

@@ -1,6 +1,6 @@
 import pygame
 from VisibleTile import VisibleTile
-import utils
+import Pygame_utils
 
 
 class AnimatedTile(VisibleTile):
@@ -10,13 +10,13 @@ class AnimatedTile(VisibleTile):
     def __init__(
         self,
         pos: tuple[int, int],
-        frames: list[utils.Frame],
+        frames: list[Pygame_utils.Frame],
         props: dict,
         layerProps: dict,
         *groups: pygame.sprite.Group
     ) -> None:
         super().__init__(pos, frames[0].image, props, layerProps, *groups)
-        self.animation = utils.Animation(*frames)
+        self.animation = Pygame_utils.Animation(*frames)
 
     def updateAnimation(self, ct: int) -> None:
         self.animation.updateAnimation(ct)

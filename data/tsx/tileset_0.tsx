@@ -16,7 +16,12 @@
  <tile id="8" type="ocean"/>
  <tile id="12" type="ground"/>
  <tile id="13" type="ground"/>
- <tile id="14" type="ground"/>
+ <tile id="14" type="ground">
+  <objectgroup draworder="index" id="2">
+   <object id="3" x="0" y="0" width="32" height="32"/>
+   <object id="4" x="0" y="0" width="32" height="32"/>
+  </objectgroup>
+ </tile>
  <tile id="15" type="ground"/>
  <tile id="16" type="ground"/>
  <tile id="17" type="ground"/>
