@@ -426,4 +426,4 @@ paket-files/
 
 .vscode/
 
-__main__.py
+/__main__.py
