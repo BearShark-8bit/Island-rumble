@@ -1,24 +1,26 @@
 from typing import Literal
 import pygame
-import Tiled_utils
-import gameDevUtils
 from Bullet import Bullet
 from copy import copy
 
+from mygamedevutils.pygameutils.datastructures import AnimatedEntity, Animation, Frame
+from mygamedevutils.tiledutils.datastructures import TileGroup
+from mygamedevutils.pygameutils import loadSpritesheet
 
-class Player(gameDevUtils.AnimatedEntity):
+
+class Player(AnimatedEntity):
     yRemoveLimit = 512
 
-    walkingAnimation = gameDevUtils.Animation(
-        *gameDevUtils.loadSpritesheet(
+    walkingAnimation = Animation(
+        *loadSpritesheet(
             "./assets/default/player/walking.png",
             (32, 36),
             6,
             [150, 75, 50, 150, 75, 50],
         )
     )
-    waitingAnimation = gameDevUtils.Animation(
-        gameDevUtils.Frame(pygame.image.load("./assets/default/player/waiting.png"))
+    waitingAnimation = Animation(
+        Frame(pygame.image.load("./assets/default/player/waiting.png"))
     )
     speed = 2
     cooldown = 600
@@ -26,8 +28,8 @@ class Player(gameDevUtils.AnimatedEntity):
     def __init__(
         self,
         pos: tuple[int, int],
-        ground: Tiled_utils.TileGroup,
-        ocean: Tiled_utils.TileGroup,
+        ground: TileGroup,
+        ocean: TileGroup,
         side: Literal["left", "right"],
         *groups: pygame.sprite.Group | pygame.sprite.GroupSingle
     ) -> None:
@@ -75,6 +77,26 @@ class Player(gameDevUtils.AnimatedEntity):
                     self.jump(15)
 
                 if keys[pygame.K_x]:
+                    self.shoot(self.previous_speedX, ct, bulletGroup, self.myBullets)
+            else:
+                if keys[pygame.K_LEFT]:
+                    self.previous_speedX = self.speedX
+                    self.speedX = -1
+                    self.iswalking = True
+
+                elif keys[pygame.K_RIGHT]:
+                    self.previous_speedX = self.speedX
+                    self.speedX = 1
+                    self.iswalking = True
+
+                else:
+                    self.speedX = 0
+                    self.iswalking = False
+
+                if keys[pygame.K_UP]:
+                    self.jump(15)
+
+                if keys[pygame.K_m]:
                     self.shoot(self.previous_speedX, ct, bulletGroup, self.myBullets)
 
     def update(self, bullets: pygame.sprite.Group):

@@ -1,6 +1,8 @@
-from typing import Any, Literal
+from typing import Literal
 from pygame import transform
-from gameDevUtils import Animation, loadSpritesheet, AnimatedEntity
+
+from mygamedevutils.pygameutils.datastructures import AnimatedEntity, Animation
+from mygamedevutils.pygameutils import loadSpritesheet
 
 
 class Bullet(AnimatedEntity):

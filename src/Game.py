@@ -1,9 +1,11 @@
 import sys
 import pygame
-import Tiled_utils
-import gameDevUtils as GDU
 
 from Player import Player
+
+from mygamedevutils.tiledutils import load
+from mygamedevutils.pygameutils.datastructures import AnimatedEntityGroup
+from mygamedevutils.pygameutils import text
 
 
 class Game:
@@ -14,7 +16,7 @@ class Game:
     margin = 40
     msPerUpdate = 1000 / fps
     clock = pygame.time.Clock()
-    players: GDU.AnimatedEntityGroup = GDU.AnimatedEntityGroup()
+    players: AnimatedEntityGroup = AnimatedEntityGroup()
     screen = pygame.display.set_mode(
         (
             screenWidth + margin,
@@ -24,16 +26,18 @@ class Game:
     )
     pygame.display.set_caption("Island rumble")
     pygame.display.set_icon(pygame.image.load("./assets/icon.png"))
-    tiles = Tiled_utils.load("./data/tmx/tmx.tmx", (tileSize))[0]
+    tiles = load("./data/tmx/tmx.tmx", (tileSize))[0]
     renderSurface = pygame.Surface((screenWidth, screenHeight))
-    ground: list[Tiled_utils.VisibleTile] = tiles.search_by_props("type", "ground")
-    ocean: list[Tiled_utils.VisibleTile] = tiles.search_by_props("type", "ocean")
-    objects = Tiled_utils.load("./data/tmx/tmx.tmx", (tileSize))[1]
+    ground = tiles.search_by_type("ground")
+    ocean = tiles.search_by_type("ocean")
+    objects = load("./data/tmx/tmx.tmx", (tileSize))[1]
     spawnPoints = objects.search_by_props("type", "spawn_point")
-    bullets = GDU.AnimatedEntityGroup()
+    bullets = AnimatedEntityGroup()
 
     def __init__(self) -> None:
         self.pageOn = "game"
+
+        Game.players.empty()
 
         self.player1 = Player(
             Game.spawnPoints[0].rect.center,
@@ -86,16 +90,25 @@ class Game:
         if self.pageOn == "game over screen":
             Game.renderSurface.fill((0, 0, 0))
             Game.screen.fill((0, 0, 0))
-
-            GDU.text(
-                Game.renderSurface,
-                "GAME OVER",
-                68,
-                (255, 255, 255),
-                True,
-                center=(Game.screenWidth / 2, Game.screenHeight / 2),
-            )
-            GDU.text(
+            if Game.players.sprites() and not (Game.players.sprites()[0].isdead):
+                text(
+                    Game.renderSurface,
+                    f"Player on the {Game.players.sprites()[0].side} side wins!",
+                    68,
+                    (255, 255, 255),
+                    True,
+                    center=(Game.screenWidth / 2, Game.screenHeight / 2 - 64),
+                )
+            else:
+                text(
+                    Game.renderSurface,
+                    f"It's a draw!",
+                    68,
+                    (255, 255, 255),
+                    True,
+                    center=(Game.screenWidth / 2, Game.screenHeight / 2),
+                )
+            text(
                 self.renderSurface,
                 "Press R key to restart",
                 34,
@@ -117,7 +130,7 @@ class Game:
             Game.bullets.updateAnimation(self.getCurrentTime())
             Game.bullets.draw(Game.renderSurface)
 
-            GDU.text(
+            text(
                 Game.renderSurface,
                 "FPS: " + str(int(Game.clock.get_fps())),
                 18,
@@ -128,7 +141,7 @@ class Game:
 
             # Toggle fullscreen mode. If the user pressing key F11 to toggle fullscreen the fullscreen is pressed.
             if Game.screen.get_flags() == -2130706416:
-                GDU.text(
+                text(
                     Game.screen,
                     "Press key F11 to toggle fullscreen",
                     16,
@@ -159,8 +172,9 @@ class Game:
         self.__init__()
 
     def pageManaging(self):
-        if not (Game.players.has(self.player1)):
+        if not (Game.players.has(self.player1)) or not (Game.players.has(self.player2)):
             self.pageOn = "game over screen"
+            Game.bullets.empty()
 
         else:
             self.pageOn = "game"
