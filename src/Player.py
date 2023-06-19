@@ -156,6 +156,7 @@ class Player(AnimatedEntity):
         if enemyBullets.sprites():
             if pygame.sprite.spritecollideany(self, enemyBullets.sprites(), None):
                 self.die()
+                bullets.empty()
 
     def jump(self, speed):
         if self.istouchingGround:

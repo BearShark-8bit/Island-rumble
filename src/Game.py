@@ -150,8 +150,10 @@ class Game:
                     topleft=(2, 2),
                 )
 
-            if self.player1.isdead:
-                Game.renderSurface.fill((0, 0, 0))
+            player: Player
+            for player in Game.players.sprites():
+                if player.isdead:
+                    Game.renderSurface.fill((0, 0, 0))
 
             Game.players.updateAnimation(self.getCurrentTime())
             Game.players.draw(Game.renderSurface)
