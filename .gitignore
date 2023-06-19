@@ -425,3 +425,5 @@ paket-files/
 *.sln.iml
 
 .vscode/
+
+__main__.py
