@@ -239,4 +239,5 @@ class Game:
             Game.clock.tick(Game.fps)
 
 
-Game()
+if __name__ == "__main__":
+    Game()
