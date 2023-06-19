@@ -23,7 +23,7 @@ class Player(AnimatedEntity):
         Frame(pygame.image.load("./assets/default/player/waiting.png"))
     )
     speed = 2
-    cooldown = 600
+    cooldown = 800
 
     def __init__(
         self,

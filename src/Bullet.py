@@ -11,7 +11,7 @@ class Bullet(AnimatedEntity):
     )
 
     XLIMIT = (-32, 864)
-    SPEED = 3
+    SPEED = 5
 
     def __init__(self, pos: tuple[int, int], speedX: Literal[-1, 1], *groups) -> None:
         super().__init__(pos, [Bullet.FLYINGANIMATION.copy()], *groups)
