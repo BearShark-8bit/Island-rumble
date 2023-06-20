@@ -1,11 +1,13 @@
+import importlib
 import sys
 import pygame
 
 from Player import Player
 
-from mygamedevutils.tiledutils import load
-from mygamedevutils.pygameutils.datastructures import AnimatedEntityGroup
-from mygamedevutils.pygameutils import text
+
+from bearsharkutils.tiledutils import load
+from bearsharkutils.pygameutils.datastructures import AnimatedEntityGroup
+from bearsharkutils.pygameutils import text
 
 
 class Game:

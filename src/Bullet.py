@@ -1,8 +1,8 @@
 from typing import Literal
 from pygame import transform
 
-from mygamedevutils.pygameutils.datastructures import AnimatedEntity, Animation
-from mygamedevutils.pygameutils import loadSpritesheet
+from bearsharkutils.pygameutils.datastructures import AnimatedEntity, Animation
+from bearsharkutils.pygameutils import loadSpritesheet
 
 
 class Bullet(AnimatedEntity):

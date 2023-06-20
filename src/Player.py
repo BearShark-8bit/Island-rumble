@@ -3,9 +3,9 @@ import pygame
 from Bullet import Bullet
 from copy import copy
 
-from mygamedevutils.pygameutils.datastructures import AnimatedEntity, Animation, Frame
-from mygamedevutils.tiledutils.datastructures import TileGroup
-from mygamedevutils.pygameutils import loadSpritesheet
+from bearsharkutils.pygameutils.datastructures import AnimatedEntity, Animation, Frame
+from bearsharkutils.tiledutils.datastructures import TileGroup
+from bearsharkutils.pygameutils import loadSpritesheet
 
 
 class Player(AnimatedEntity):
