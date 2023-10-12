@@ -1,5 +1,8 @@
 import sys
+
 import pygame
+
+pygame.init()
 
 from Player import Player
 
@@ -10,34 +13,36 @@ from bearsharkutils.pygameutils import text
 
 
 class Game:
-    pygame.init()
+    # All constants
     FPS = 60
-    screenWidth, screenHeight = 864, 512
-    tileSize = (32, 32)
-    margin = 40
-    msPerUpdate = 1000 / FPS
-    clock = pygame.time.Clock()
-    players: AnimatedEntityGroup = AnimatedEntityGroup()
-    screen = pygame.display.set_mode(
-        (
-            screenWidth + margin,
-            screenHeight + margin,
-        ),
-        pygame.RESIZABLE,
+    SCREENWIDTH, SCREENHEIGHT = 864, 512
+    TILESIZE = (32, 32)
+    MARGIN = 40
+    MSPERUPDATE = 1000 / FPS
+    CLOCK = pygame.time.Clock()
+    SCREEN = pygame.display.set_mode(
+        (SCREENWIDTH + MARGIN, SCREENHEIGHT + MARGIN), pygame.RESIZABLE
     )
+    RENDERSURFACE = pygame.Surface((SCREENWIDTH, SCREENHEIGHT))
+
+    # All window setup
     pygame.display.set_caption("Island rumble")
     pygame.display.set_icon(pygame.image.load("./assets/icon.png"))
-    tiles = load("./data/tmx/tmx.tmx", (tileSize))[0]
-    renderSurface = pygame.Surface((screenWidth, screenHeight))
+
+    # All Tiled data import
+    tiles = load("./data/tmx/tmx.tmx", (TILESIZE))[0]
     ground = tiles.search_by_type("ground")
     ocean = tiles.search_by_type("ocean")
-    objects = load("./data/tmx/tmx.tmx", (tileSize))[1]
+    objects = load("./data/tmx/tmx.tmx", (TILESIZE))[1]
     spawnPoints = objects.search_by_props("type", "spawn_point")
+
+    # All sprite groups
+    players: AnimatedEntityGroup = AnimatedEntityGroup()
     bullets = AnimatedEntityGroup()
-    score = [0, 0]
 
     def __init__(self) -> None:
-        self.pageOn = "game"
+        self.state = "COMBAT"
+        self.score = [0, 0]
 
         self.players.empty()
 
@@ -56,96 +61,76 @@ class Game:
             self.players,
         )
 
-        self.game = True
-
-        self.loop()
-
     def getCurrentTime(self):
-        """
-        Returns the number of seconds since the start of the game.
-
-        """
         return pygame.time.get_ticks()
 
     def handleInput(self):
-        """
-        Handles input from the player
-        """
-        # Called when the game is on game page
-        if self.pageOn == "game":
+        if self.state == "COMBAT":
             player: Player
             for player in self.players.sprites():
                 player.handle_input(self.bullets, self.getCurrentTime())
 
     def update(self):
-        """
-        Updates the game. Should be called every frame
-        """
         self.bullets.update()
         self.players.update(self.bullets)
 
     def render(self):
-        """
-        Renders the game over screen
-        """
-        # This method is called when the game is over
-        if self.pageOn == "game over screen":
-            self.renderSurface.fill((0, 0, 0))
-            self.screen.fill((0, 0, 0))
+        if self.state == "GAMEOVER":
+            self.RENDERSURFACE.fill((0, 0, 0))
+            self.SCREEN.fill((0, 0, 0))
             winner: Player = self.players.sprites()[0]
             if self.players.sprites() and not (self.players.sprites()[0].isdead):
                 text(
-                    self.renderSurface,
+                    self.RENDERSURFACE,
                     f"Player on the {winner.side} side wins!",
                     68,
                     (255, 255, 255),
                     True,
-                    center=(self.screenWidth / 2, self.screenHeight / 2 - 64),
+                    center=(self.SCREENWIDTH / 2, self.SCREENHEIGHT / 2 - 64),
                 )
             else:
                 text(
-                    self.renderSurface,
+                    self.RENDERSURFACE,
                     f"It's a draw!",
                     68,
                     (255, 255, 255),
                     True,
-                    center=(self.screenWidth / 2, self.screenHeight / 2),
+                    center=(self.SCREENWIDTH / 2, self.SCREENHEIGHT / 2),
                 )
             text(
-                self.renderSurface,
+                self.RENDERSURFACE,
                 "Press R key to restart",
                 34,
                 (255, 255, 255),
                 True,
-                center=(self.screenWidth / 2, self.screenHeight / 2 + 80),
+                center=(self.SCREENWIDTH / 2, self.SCREENHEIGHT / 2 + 80),
             )
 
-            self.players.draw(self.renderSurface)
+            self.players.draw(self.RENDERSURFACE)
 
-        # This method is called when the page is on game page.
-        if self.pageOn == "game":
-            self.renderSurface.fill((135, 206, 235))
-            self.screen.fill((0, 0, 0))
+        if self.state == "COMBAT":
+            self.RENDERSURFACE.fill((135, 206, 235))
+            self.SCREEN.fill((0, 0, 0))
 
             self.tiles.updateAnimation(self.getCurrentTime())
-            self.tiles.draw(self.renderSurface)
+            self.tiles.draw(self.RENDERSURFACE)
 
             self.bullets.updateAnimation(self.getCurrentTime())
-            self.bullets.draw(self.renderSurface)
+            self.bullets.draw(self.RENDERSURFACE)
 
             text(
-                self.renderSurface,
-                "FPS: " + str(int(self.clock.get_fps())),
+                self.RENDERSURFACE,
+                "FPS: " + str(int(self.CLOCK.get_fps())),
                 18,
                 (0, 0, 0),
                 True,
-                topright=(self.screenWidth - 3, 3),
+                topright=(self.SCREENWIDTH - 3, 3),
             )
 
             # Toggle fullscreen mode. If the user pressing key F11 to toggle fullscreen the fullscreen is pressed.
-            if self.screen.get_flags() == -2130706416:
+            if self.SCREEN.get_flags() == -2130706416:
                 text(
-                    self.screen,
+                    self.SCREEN,
                     "Press key F11 to toggle fullscreen",
                     16,
                     (255, 255, 255),
@@ -153,20 +138,20 @@ class Game:
                     topleft=(2, 2),
                 )
 
-            player: Player
-            for player in self.players.sprites():
-                if player.isdead:
-                    self.renderSurface.fill((0, 0, 0))
+            # player: Player
+            # for player in self.players.sprites():
+            #     if player.isdead:
+            #         self.RENDERSURFACE.fill((0, 0, 0))
 
             self.players.updateAnimation(self.getCurrentTime())
-            self.players.draw(self.renderSurface)
+            self.players.draw(self.RENDERSURFACE)
 
-        self.screen.blit(
-            self.renderSurface,
-            self.renderSurface.get_rect(
+        self.SCREEN.blit(
+            self.RENDERSURFACE,
+            self.RENDERSURFACE.get_rect(
                 center=(
-                    self.screen.get_size()[0] / 2,
-                    self.screen.get_size()[1] / 2,
+                    self.SCREEN.get_size()[0] / 2,
+                    self.SCREEN.get_size()[1] / 2,
                 )
             ),
         )
@@ -174,51 +159,53 @@ class Game:
         pygame.display.update()
 
     def restartGame(self):
+        score = self.score
         self.__init__()
+        self.score = score
 
     def pageManaging(self):
         if not (self.players.has(self.player1)) or not (self.players.has(self.player2)):
-            self.pageOn = "game over screen"
+            self.state = "GAMEOVER"
             self.bullets.empty()
-
         else:
-            self.pageOn = "game"
+            self.state = "COMBAT"
 
     def loop(self):
+        game = True
         previous = self.getCurrentTime()
-        lag = 0.0
-        while self.game:
+        lag: float = 0.0
+        while game:
             for e in pygame.event.get():
                 # quit the game if the event is a QUIT
                 if e.type == pygame.QUIT:
-                    self.game = False
+                    game = False
                     pygame.quit()
                     sys.exit()
 
                 if e.type == pygame.KEYDOWN:
                     if e.key == pygame.K_F11:
                         # Set the display mode to fullscreen or reszable mode.
-                        if self.screen.get_flags() != -2130706416:
-                            self.screen = pygame.display.set_mode(
+                        if self.SCREEN.get_flags() != -2130706416:
+                            self.SCREEN = pygame.display.set_mode(
                                 (0, 0), pygame.FULLSCREEN
                             )
                         else:
-                            self.screen = pygame.display.set_mode(
+                            self.SCREEN = pygame.display.set_mode(
                                 (
-                                    self.screenWidth + self.margin,
-                                    self.screenHeight + self.margin,
+                                    self.SCREENWIDTH + self.MARGIN,
+                                    self.SCREENHEIGHT + self.MARGIN,
                                 ),
                                 pygame.RESIZABLE,
                             )
                     if e.key == pygame.K_ESCAPE:
-                        self.screen = pygame.display.set_mode(
+                        self.SCREEN = pygame.display.set_mode(
                             (
-                                self.screenWidth + self.margin,
-                                self.screenHeight + self.margin,
+                                self.SCREENWIDTH + self.MARGIN,
+                                self.SCREENHEIGHT + self.MARGIN,
                             ),
                             pygame.RESIZABLE,
                         )
-                    if e.key == pygame.K_r and self.pageOn == "game over screen":
+                    if e.key == pygame.K_r and self.state == "GAMEOVER":
                         self.restartGame()
 
             current = self.getCurrentTime()
@@ -228,16 +215,17 @@ class Game:
 
             self.handleInput()
 
-            while lag >= self.msPerUpdate:
+            while lag >= self.MSPERUPDATE:
                 self.update()
-                lag -= self.msPerUpdate
+                lag -= self.MSPERUPDATE
 
             self.pageManaging()
 
             self.render()
 
-            self.clock.tick(self.FPS)
+            self.CLOCK.tick(self.FPS)
 
 
 if __name__ == "__main__":
-    Game()
+    game = Game()
+    game.loop()
