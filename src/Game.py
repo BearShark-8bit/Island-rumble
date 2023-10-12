@@ -183,6 +183,11 @@ class Game:
 
     def restartGame(self):
         score = self.score
+        winner: Player = self.players.sprites()[0]
+        if winner.side == "left":
+            score[0] = score[0] + 1
+        else:
+            score[1] = score[1] + 1
         self.__init__()
         self.score = score
 
