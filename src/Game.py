@@ -92,10 +92,11 @@ class Game:
         if self.pageOn == "game over screen":
             Game.renderSurface.fill((0, 0, 0))
             Game.screen.fill((0, 0, 0))
+            winner: Player = Game.players.sprites()[0]
             if Game.players.sprites() and not (Game.players.sprites()[0].isdead):
                 text(
                     Game.renderSurface,
-                    f"Player on the {Game.players.sprites()[0].side} side wins!",
+                    f"Player on the {winner.side} side wins!",
                     68,
                     (255, 255, 255),
                     True,
