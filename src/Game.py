@@ -9,7 +9,21 @@ from Player import Player
 
 from bearsharkutils.tiledutils import load
 from bearsharkutils.pygameutils.datastructures import AnimatedEntityGroup
-from bearsharkutils.pygameutils import text
+
+
+def text(
+    surf: pygame.Surface,
+    text: str,
+    size: int,
+    color: tuple,
+    antialias: bool,
+    font=None,
+    **rectkvargs,
+):
+    font = pygame.font.SysFont(font, size)
+    img = font.render(text, antialias, color)
+    rect = img.get_rect(**rectkvargs)
+    surf.blit(img, rect)
 
 
 class Game:
@@ -125,6 +139,15 @@ class Game:
                 (0, 0, 0),
                 True,
                 topright=(self.SCREENWIDTH - 3, 3),
+            )
+            text(
+                self.RENDERSURFACE,
+                f"{self.score[0]}:{self.score[1]}",
+                128,
+                (126, 172, 222),
+                True,
+                font="Mainport",
+                center=(self.SCREENWIDTH / 2, self.SCREENHEIGHT / 2 - 150),
             )
 
             # Toggle fullscreen mode. If the user pressing key F11 to toggle fullscreen the fullscreen is pressed.
