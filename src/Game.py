@@ -35,25 +35,26 @@ class Game:
     objects = load("./data/tmx/tmx.tmx", (tileSize))[1]
     spawnPoints = objects.search_by_props("type", "spawn_point")
     bullets = AnimatedEntityGroup()
+    score = [0, 0]
 
     def __init__(self) -> None:
         self.pageOn = "game"
 
-        Game.players.empty()
+        self.players.empty()
 
         self.player1 = Player(
-            Game.spawnPoints[0].rect.center,
-            Game.ground,
-            Game.ocean,
+            self.spawnPoints[0].rect.center,
+            self.ground,
+            self.ocean,
             "left",
-            Game.players,
+            self.players,
         )
         self.player2 = Player(
-            Game.spawnPoints[1].rect.center,
-            Game.ground,
-            Game.ocean,
+            self.spawnPoints[1].rect.center,
+            self.ground,
+            self.ocean,
             "right",
-            Game.players,
+            self.players,
         )
 
         self.game = True
@@ -74,15 +75,15 @@ class Game:
         # Called when the game is on game page
         if self.pageOn == "game":
             player: Player
-            for player in Game.players.sprites():
-                player.handle_input(Game.bullets, self.getCurrentTime())
+            for player in self.players.sprites():
+                player.handle_input(self.bullets, self.getCurrentTime())
 
     def update(self):
         """
         Updates the game. Should be called every frame
         """
-        Game.bullets.update()
-        Game.players.update(Game.bullets)
+        self.bullets.update()
+        self.players.update(self.bullets)
 
     def render(self):
         """
@@ -90,26 +91,26 @@ class Game:
         """
         # This method is called when the game is over
         if self.pageOn == "game over screen":
-            Game.renderSurface.fill((0, 0, 0))
-            Game.screen.fill((0, 0, 0))
-            winner: Player = Game.players.sprites()[0]
-            if Game.players.sprites() and not (Game.players.sprites()[0].isdead):
+            self.renderSurface.fill((0, 0, 0))
+            self.screen.fill((0, 0, 0))
+            winner: Player = self.players.sprites()[0]
+            if self.players.sprites() and not (self.players.sprites()[0].isdead):
                 text(
-                    Game.renderSurface,
+                    self.renderSurface,
                     f"Player on the {winner.side} side wins!",
                     68,
                     (255, 255, 255),
                     True,
-                    center=(Game.screenWidth / 2, Game.screenHeight / 2 - 64),
+                    center=(self.screenWidth / 2, self.screenHeight / 2 - 64),
                 )
             else:
                 text(
-                    Game.renderSurface,
+                    self.renderSurface,
                     f"It's a draw!",
                     68,
                     (255, 255, 255),
                     True,
-                    center=(Game.screenWidth / 2, Game.screenHeight / 2),
+                    center=(self.screenWidth / 2, self.screenHeight / 2),
                 )
             text(
                 self.renderSurface,
@@ -117,35 +118,35 @@ class Game:
                 34,
                 (255, 255, 255),
                 True,
-                center=(Game.screenWidth / 2, Game.screenHeight / 2 + 80),
+                center=(self.screenWidth / 2, self.screenHeight / 2 + 80),
             )
 
-            Game.players.draw(Game.renderSurface)
+            self.players.draw(self.renderSurface)
 
         # This method is called when the page is on game page.
         if self.pageOn == "game":
-            Game.renderSurface.fill((135, 206, 235))
-            Game.screen.fill((0, 0, 0))
+            self.renderSurface.fill((135, 206, 235))
+            self.screen.fill((0, 0, 0))
 
-            Game.tiles.updateAnimation(self.getCurrentTime())
-            Game.tiles.draw(Game.renderSurface)
+            self.tiles.updateAnimation(self.getCurrentTime())
+            self.tiles.draw(self.renderSurface)
 
-            Game.bullets.updateAnimation(self.getCurrentTime())
-            Game.bullets.draw(Game.renderSurface)
+            self.bullets.updateAnimation(self.getCurrentTime())
+            self.bullets.draw(self.renderSurface)
 
             text(
-                Game.renderSurface,
-                "FPS: " + str(int(Game.clock.get_fps())),
+                self.renderSurface,
+                "FPS: " + str(int(self.clock.get_fps())),
                 18,
                 (0, 0, 0),
                 True,
-                topright=(Game.screenWidth - 3, 3),
+                topright=(self.screenWidth - 3, 3),
             )
 
             # Toggle fullscreen mode. If the user pressing key F11 to toggle fullscreen the fullscreen is pressed.
-            if Game.screen.get_flags() == -2130706416:
+            if self.screen.get_flags() == -2130706416:
                 text(
-                    Game.screen,
+                    self.screen,
                     "Press key F11 to toggle fullscreen",
                     16,
                     (255, 255, 255),
@@ -154,19 +155,19 @@ class Game:
                 )
 
             player: Player
-            for player in Game.players.sprites():
+            for player in self.players.sprites():
                 if player.isdead:
-                    Game.renderSurface.fill((0, 0, 0))
+                    self.renderSurface.fill((0, 0, 0))
 
-            Game.players.updateAnimation(self.getCurrentTime())
-            Game.players.draw(Game.renderSurface)
+            self.players.updateAnimation(self.getCurrentTime())
+            self.players.draw(self.renderSurface)
 
-        Game.screen.blit(
-            Game.renderSurface,
-            Game.renderSurface.get_rect(
+        self.screen.blit(
+            self.renderSurface,
+            self.renderSurface.get_rect(
                 center=(
-                    Game.screen.get_size()[0] / 2,
-                    Game.screen.get_size()[1] / 2,
+                    self.screen.get_size()[0] / 2,
+                    self.screen.get_size()[1] / 2,
                 )
             ),
         )
@@ -177,17 +178,14 @@ class Game:
         self.__init__()
 
     def pageManaging(self):
-        if not (Game.players.has(self.player1)) or not (Game.players.has(self.player2)):
+        if not (self.players.has(self.player1)) or not (self.players.has(self.player2)):
             self.pageOn = "game over screen"
-            Game.bullets.empty()
+            self.bullets.empty()
 
         else:
             self.pageOn = "game"
 
     def loop(self):
-        """
-        Loop indefinitely until quit
-        """
         previous = self.getCurrentTime()
         lag = 0.0
         while self.game:
@@ -201,23 +199,23 @@ class Game:
                 if e.type == pygame.KEYDOWN:
                     if e.key == pygame.K_F11:
                         # Set the display mode to fullscreen or reszable mode.
-                        if Game.screen.get_flags() != -2130706416:
-                            Game.screen = pygame.display.set_mode(
+                        if self.screen.get_flags() != -2130706416:
+                            self.screen = pygame.display.set_mode(
                                 (0, 0), pygame.FULLSCREEN
                             )
                         else:
-                            Game.screen = pygame.display.set_mode(
+                            self.screen = pygame.display.set_mode(
                                 (
-                                    Game.screenWidth + Game.margin,
-                                    Game.screenHeight + Game.margin,
+                                    self.screenWidth + self.margin,
+                                    self.screenHeight + self.margin,
                                 ),
                                 pygame.RESIZABLE,
                             )
                     if e.key == pygame.K_ESCAPE:
-                        Game.screen = pygame.display.set_mode(
+                        self.screen = pygame.display.set_mode(
                             (
-                                Game.screenWidth + Game.margin,
-                                Game.screenHeight + Game.margin,
+                                self.screenWidth + self.margin,
+                                self.screenHeight + self.margin,
                             ),
                             pygame.RESIZABLE,
                         )
@@ -239,7 +237,7 @@ class Game:
 
             self.render()
 
-            Game.clock.tick(Game.fps)
+            self.clock.tick(self.fps)
 
 
 if __name__ == "__main__":
