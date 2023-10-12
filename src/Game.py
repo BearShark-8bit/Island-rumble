@@ -11,11 +11,11 @@ from bearsharkutils.pygameutils import text
 
 class Game:
     pygame.init()
-    fps = 60
+    FPS = 60
     screenWidth, screenHeight = 864, 512
     tileSize = (32, 32)
     margin = 40
-    msPerUpdate = 1000 / fps
+    msPerUpdate = 1000 / FPS
     clock = pygame.time.Clock()
     players: AnimatedEntityGroup = AnimatedEntityGroup()
     screen = pygame.display.set_mode(
@@ -236,7 +236,7 @@ class Game:
 
             self.render()
 
-            self.clock.tick(self.fps)
+            self.clock.tick(self.FPS)
 
 
 if __name__ == "__main__":
