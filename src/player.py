@@ -1,11 +1,11 @@
 from typing import Literal
 import pygame
-from bullet import Bullet
-from copy import copy
+
 
 from bearsharkutils.pygameutils.datastructures import AnimatedEntity, Animation, Frame
 from bearsharkutils.tiledutils.datastructures import TileGroup
 from bearsharkutils.pygameutils import loadSpritesheet
+from bullet import Bullet
 
 
 class Player(AnimatedEntity):
