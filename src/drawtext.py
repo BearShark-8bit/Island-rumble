@@ -30,7 +30,10 @@ def draw_text(
     bottomleft = (x, y),
     bottomright = (x, y)
     """
-    font = pygame.font.SysFont(text.font, text.size)
+    if text.font is None:
+        font = pygame.font.SysFont(text.font, text.size)
+    else:
+        font = pygame.font.Font(f"./data/fonts/{text.font}.ttf", text.size)
     image = font.render(text.text, antialias, text.color)
     rect = image.get_rect(**rectkvargs)
     surface.blit(image, rect)

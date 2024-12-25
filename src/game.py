@@ -96,7 +96,7 @@ def render():
 
         draw_text(
             screen,
-            Text(f"{score[0]}:{score[1]}", 32, (126, 172, 222), "Mainport"),
+            Text(f"{score[0]}:{score[1]}", 128, (126, 172, 222), "Mainport"),
             True,
             center=(screen_width / 2, screen_height / 2 - 150),
         )
