@@ -31,7 +31,7 @@ class Player(AnimatedEntity):
         ground: TileGroup,
         ocean: TileGroup,
         side: Literal["left", "right"],
-        *groups: pygame.sprite.Group | pygame.sprite.GroupSingle
+        groups: pygame.sprite.Group | pygame.sprite.GroupSingle,
     ) -> None:
         super().__init__(
             pos,
