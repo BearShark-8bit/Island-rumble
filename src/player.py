@@ -1,6 +1,6 @@
 from typing import Literal
 import pygame
-from Bullet import Bullet
+from bullet import Bullet
 from copy import copy
 
 from bearsharkutils.pygameutils.datastructures import AnimatedEntity, Animation, Frame
