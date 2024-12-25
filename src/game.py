@@ -1,7 +1,6 @@
-"""main game_state file"""
+"""Main game file"""
 
 import sys
-import time as tm
 import pygame
 from bearsharkutils.tiledutils import load
 from bearsharkutils.pygameutils.datastructures import AnimatedEntityGroup
@@ -47,17 +46,12 @@ player2 = Player(
 )
 
 
-def time():
-    """Get the current time"""
-    return int(round(tm.time() * 1000))
-
-
 def handle_input():
     """Handle the input"""
     if state == "COMBAT":
         player: Player
         for player in players.sprites():
-            player.handle_input(bullets, time())
+            player.handle_input(bullets, pygame.time.get_ticks())
 
 
 def update():
@@ -71,25 +65,16 @@ def render():
     """Render the game_state"""
     if state == "GAMEOVER":
         screen.fill((0, 0, 0))
-        screen.fill((0, 0, 0))
         winner: Player = players.sprites()[0]
-        if players.sprites() and not players.sprites()[0].isdead:
-            draw_text(
-                screen,
-                Text(
-                    f"Player on the {winner.side} side wins!",
-                    68,
-                ),
-                True,
-                center=(screen_width / 2, screen_height / 2 - 64),
-            )
-        else:
-            draw_text(
-                screen,
-                Text("It's a draw!", 68),
-                True,
-                center=(screen_width / 2, screen_height / 2),
-            )
+        draw_text(
+            screen,
+            Text(
+                f"Player on the {winner.side} side wins!",
+                68,
+            ),
+            True,
+            center=(screen_width / 2, screen_height / 2 - 64),
+        )
 
         draw_text(
             screen,
@@ -103,18 +88,11 @@ def render():
     if state == "COMBAT":
         screen.fill((135, 206, 235))
 
-        tiles.updateAnimation(time())
+        tiles.updateAnimation(pygame.time.get_ticks())
         tiles.draw(screen)
 
-        bullets.updateAnimation(time())
+        bullets.updateAnimation(pygame.time.get_ticks())
         bullets.draw(screen)
-
-        draw_text(
-            screen,
-            Text("fps: " + str(int(clock.get_fps())), 18, (0, 0, 0)),
-            True,
-            topright=(screen_width - 3, 3),
-        )
 
         draw_text(
             screen,
@@ -123,22 +101,36 @@ def render():
             center=(screen_width / 2, screen_height / 2 - 150),
         )
 
-        players.updateAnimation(time())
+        players.updateAnimation(pygame.time.get_ticks())
         players.draw(screen)
 
     pygame.display.update()
 
 
-# def restart_game():
-#     """Restart the game_state"""
-#     score = .score
-#     winner: Player = .players.sprites()[0]
-#     if winner.side == "left":
-#         score[0] = score[0] + 1
-#     else:
-#         score[1] = score[1] + 1
-#     .__init__()
-#     .score = score
+def restart_game():
+    """Restart the game_state"""
+    global state, player1, player2
+    winner: Player = players.sprites()[0]
+    if winner.side == "left":
+        score[0] = score[0] + 1
+    else:
+        score[1] = score[1] + 1
+
+    players.empty()
+    bullets.empty()
+
+    state = "COMBAT"
+
+    player1 = Player(
+        pos=spawnPoints[0].rect.center,
+        side="left",
+        **player_config,
+    )
+    player2 = Player(
+        pos=spawnPoints[1].rect.center,
+        side="right",
+        **player_config,
+    )
 
 
 def page_managing():
@@ -149,17 +141,19 @@ def page_managing():
     return "COMBAT"
 
 
-if __name__ == "__main__":
-    while True:
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+while True:
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_r and state == "GAMEOVER":
+                restart_game()
 
-        handle_input()
+    handle_input()
 
-        state: str = update()
+    state: str = update()
 
-        render()
+    render()
 
-        clock.tick(FPS)
+    clock.tick(FPS)
